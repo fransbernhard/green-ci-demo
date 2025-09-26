@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>🌱 Green CI Demo</title>
+    <style>
+        body {font-family:sans-serif;text-align:center;background:#eef; }
+        h1 {color:#2c662d;}
+        button {padding:10px 20px;margin:10px;font-size:18px;}
+        #garden span {font-size:2rem;display:inline-block;animation:float 4s linear forwards;}
+    @keyframes float {from{transform:translateY(20px);opacity:0}to{transform:translateY(-60px);opacity:1}}
+    </style>
+</head>
+<body>
+    <h1>Hello Green World 🌍</h1>
+    <p>This is my GitHub Pages + Eco-CI demo site.</p>
+    <button onclick="plant()">🌿 Plant</button>
+    <div id="garden"></div>
+    
+    <script>
+        function plant(){
+            const g=document.getElementById("garden");
+            const e=document.createElement("span");
+            e.textContent="🌱";
+            g.appendChild(e);
+            setTimeout(()=>g.removeChild(e),4000);
+        }
+    </script>
+</body>
+</html>

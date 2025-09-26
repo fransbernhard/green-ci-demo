@@ -1,0 +1,17 @@
+name: CI energy (demo)
+on: [push]
+jobs:
+  energy-demo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Start Measurement
+        uses: green-coding-solutions/eco-ci-energy-estimation@v5
+        with:
+          task: start-measurement
+      - name: Build/Test placeholder
+        run: node -e "console.log('Hello Green CI!')"
+      - name: Show Energy Results
+        uses: green-coding-solutions/eco-ci-energy-estimation@v5
+        with:
+          task: display-results
