@@ -19,22 +19,21 @@ jobs:
           echo "Building…" && sleep 2
 
       - name: Take a measurement (required)
-        id: lap1
         uses: green-coding-solutions/eco-ci-energy-estimation@v5
         with:
           task: get-measurement
           label: "build phase"
 
-      - name: Display results (enable JSON outputs)
-        id: total
+      - name: Display results + write JSON to /tmp
         uses: green-coding-solutions/eco-ci-energy-estimation@v5
         with:
           task: display-results
-          json-output: true
+          json-output: "true"   # <-- important (string)
 
-      - name: Save energy.json (from action output)
+      - name: Save energy.json (copy from /tmp)
         run: |
-          printf '%s' '${{ steps.total.outputs.data-total-json }}' > energy.json
+          test -s /tmp/eco-ci/lap-data.json || { echo "No JSON at /tmp/eco-ci/lap-data.json"; exit 1; }
+          cp /tmp/eco-ci/lap-data.json energy.json
           git config user.name "github-actions"
           git config user.email "actions@users.noreply.github.com"
           git add energy.json
