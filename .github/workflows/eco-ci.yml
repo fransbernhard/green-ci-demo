@@ -1,17 +1,42 @@
+# .github/workflows/eco-ci.yml
 name: CI energy (demo)
-on: [push]
+on: [push, workflow_dispatch]
+permissions:
+  contents: write
 jobs:
   energy-demo:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Start Measurement
         uses: green-coding-solutions/eco-ci-energy-estimation@v5
         with:
           task: start-measurement
-      - name: Build/Test placeholder
-        run: node -e "console.log('Hello Green CI!')"
-      - name: Show Energy Results
+
+      - name: Workload
+        run: |
+          echo "Building…" && sleep 2
+
+      - name: Show Energy Results (and capture)
+        id: results
         uses: green-coding-solutions/eco-ci-energy-estimation@v5
         with:
           task: display-results
+
+      - name: Parse numbers from logs
+        id: parse
+        run: |
+          # extract the last "Total energy" line from the step summary if present
+          energy_mwh=$(grep -Eo 'Total energy[^0-9]*([0-9.]+) mWh' -m1 $GITHUB_STEP_SUMMARY | grep -Eo '[0-9.]+')
+          echo "energy_mwh=${energy_mwh:-0}" >> $GITHUB_OUTPUT
+          echo "{\"energy_mwh\": ${energy_mwh:-0}, \"run_id\": \"$GITHUB_RUN_ID\", \"ts\": \"$(date -u +%FT%TZ)\"}" > energy.json
+
+      - name: Commit energy.json to main
+        run: |
+          cp energy.json ./energy.json
+          git config user.name "github-actions"
+          git config user.email "actions@users.noreply.github.com"
+          git add energy.json
+          git commit -m "Update energy.json [skip ci]" || echo "No changes"
+          git push

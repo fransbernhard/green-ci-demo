@@ -12,19 +12,25 @@
     </style>
 </head>
 <body>
-    <h1>Hello Green World 🌍</h1>
+    <h1>🌍</h1>
     <p>This is my GitHub Pages + Eco-CI demo site.</p>
-    <button onclick="plant()">🌿 Plant</button>
-    <div id="garden"></div>
-    
+    <button onclick="plant()">🌿</button>
+
+    <section>
+        <h2>Latest CI Energy</h2>
+        <p id="ciEnergy">Loading…</p>
+    </section>
     <script>
-        function plant(){
-            const g=document.getElementById("garden");
-            const e=document.createElement("span");
-            e.textContent="🌱";
-            g.appendChild(e);
-            setTimeout(()=>g.removeChild(e),4000);
+    (async function(){
+        try{
+        const d = await fetch('energy.json', {cache:'no-store'}).then(r=>r.json());
+        document.getElementById('ciEnergy').textContent =
+            `Last run: ${d.energy_mwh} mWh (Run #${d.run_id})`;
+        } catch {
+        document.getElementById('ciEnergy').textContent = 'No CI energy data yet.';
         }
+    })();
     </script>
+  
 </body>
 </html>
