@@ -1,4 +1,3 @@
-# .github/workflows/eco-ci.yml
 name: CI energy (demo)
 on: [push, workflow_dispatch]
 permissions:
@@ -19,25 +18,23 @@ jobs:
         run: |
           echo "Building…" && sleep 2
 
-      - name: Mark measurement (required)
+      - name: Take a measurement (required)
         id: lap1
         uses: green-coding-solutions/eco-ci-energy-estimation@v5
         with:
           task: get-measurement
           label: "build phase"
 
-      - name: Display results and output JSON
+      - name: Display results (enable JSON outputs)
         id: total
         uses: green-coding-solutions/eco-ci-energy-estimation@v5
         with:
           task: display-results
-          json-output: true   # enables JSON outputs
+          json-output: true
 
-      - name: Save energy.json (real data)
+      - name: Save energy.json (from action output)
         run: |
-          cat > energy.json <<'JSON'
-          ${{ steps.total.outputs.data-total-json }}
-          JSON
+          printf '%s' '${{ steps.total.outputs.data-total-json }}' > energy.json
           git config user.name "github-actions"
           git config user.email "actions@users.noreply.github.com"
           git add energy.json
