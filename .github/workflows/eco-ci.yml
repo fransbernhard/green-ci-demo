@@ -3,40 +3,43 @@ name: CI energy (demo)
 on: [push, workflow_dispatch]
 permissions:
   contents: write
+
 jobs:
   energy-demo:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Start Measurement
+      - name: Start measurement
         uses: green-coding-solutions/eco-ci-energy-estimation@v5
         with:
           task: start-measurement
 
-      - name: Workload
+      - name: Do some work
         run: |
           echo "Building…" && sleep 2
 
-      - name: Show Energy Results (and capture)
-        id: results
+      - name: Mark measurement (required)
+        id: lap1
+        uses: green-coding-solutions/eco-ci-energy-estimation@v5
+        with:
+          task: get-measurement
+          label: "build phase"
+
+      - name: Display results and output JSON
+        id: total
         uses: green-coding-solutions/eco-ci-energy-estimation@v5
         with:
           task: display-results
+          json-output: true   # enables JSON outputs
 
-      - name: Parse numbers from logs
-        id: parse
+      - name: Save energy.json (real data)
         run: |
-          # extract the last "Total energy" line from the step summary if present
-          energy_mwh=$(grep -Eo 'Total energy[^0-9]*([0-9.]+) mWh' -m1 $GITHUB_STEP_SUMMARY | grep -Eo '[0-9.]+')
-          echo "energy_mwh=${energy_mwh:-0}" >> $GITHUB_OUTPUT
-          echo "{\"energy_mwh\": ${energy_mwh:-0}, \"run_id\": \"$GITHUB_RUN_ID\", \"ts\": \"$(date -u +%FT%TZ)\"}" > energy.json
-
-      - name: Commit energy.json to main
-        run: |
-          cp energy.json ./energy.json
+          cat > energy.json <<'JSON'
+          ${{ steps.total.outputs.data-total-json }}
+          JSON
           git config user.name "github-actions"
           git config user.email "actions@users.noreply.github.com"
           git add energy.json
-          git commit -m "Update energy.json [skip ci]" || echo "No changes"
+          git commit -m "Update energy.json [skip ci]" || echo "No change"
           git push
