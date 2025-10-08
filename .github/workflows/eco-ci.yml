@@ -24,18 +24,32 @@ jobs:
           task: get-measurement
           label: "build phase"
 
-      - name: Display results + write JSON to /tmp
+      - name: Display results + write JSON
         uses: green-coding-solutions/eco-ci-energy-estimation@v5
         with:
           task: display-results
-          json-output: "true"   # <-- important (string)
+          json-output: "true"
 
-      - name: Save energy.json (copy from /tmp)
+      - name: Debug - Check what files exist
         run: |
-          test -s /tmp/eco-ci/lap-data.json || { echo "No JSON at /tmp/eco-ci/lap-data.json"; exit 1; }
-          cp /tmp/eco-ci/lap-data.json energy.json
+          echo "Contents of /tmp/eco-ci/:"
+          ls -la /tmp/eco-ci/ || echo "Directory doesn't exist"
+          find /tmp -name "*eco-ci*" -o -name "*energy*" 2>/dev/null || echo "No matching files"
+
+      - name: Save energy.json
+        run: |
+          # Adjust this path based on debug output
+          if [ -f /tmp/eco-ci/lap-data.json ]; then
+            cp /tmp/eco-ci/lap-data.json energy.json
+          elif [ -f /tmp/eco-ci/energy-data.json ]; then
+            cp /tmp/eco-ci/energy-data.json energy.json
+          else
+            echo "Error: JSON file not found"
+            exit 1
+          fi
+          
           git config user.name "github-actions"
           git config user.email "actions@users.noreply.github.com"
           git add energy.json
-          git commit -m "Update energy.json [skip ci]" || echo "No change"
+          git diff --staged --quiet || git commit -m "Update energy.json [skip ci]"
           git push
