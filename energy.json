@@ -1,1 +1,15 @@
-
+{
+  "timestamp": "2026-01-03T20:23:54Z",
+  "run_id": "8",
+  "energy_joules": 4.104935792
+3.459188892
+0.346319794
+2.620017671,
+  "energy_mwh": 4.103.460.350.73,
+  "duration_seconds": 1767471831512376,
+  "cpu_utilization": 1.003531008
+1.002847744
+0.100401000
+0.759565000,
+  "workflow_url": "https://github.com/fransbernhard/green-ci-demo/actions/runs/20682465270"
+}
