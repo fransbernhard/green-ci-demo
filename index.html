@@ -18,14 +18,20 @@
 
     <section>
         <h2>Latest CI Energy</h2>
-        <p id="ciEnergy">Loading…</p>
+        <div id="ciEnergy">Loading…</div>
     </section>
     <script>
     (async function(){
         try{
         const d = await fetch('energy.json', {cache:'no-store'}).then(r=>r.json());
-        document.getElementById('ciEnergy').textContent =
-            `Last run: ${d.energy_mwh} mWh (Run #${d.run_id})`;
+        const html = `
+            <p><strong>⚡ Energy:</strong> ${d.energy_mwh} mWh (${d.energy_joules} Joules)</p>
+            <p><strong>⏱️ Duration:</strong> ${d.duration_seconds} seconds</p>
+            <p><strong>💻 CPU Utilization:</strong> ${d.cpu_utilization}%</p>
+            <p><strong>🔢 Run #${d.run_id}</strong> • <small>${new Date(d.timestamp).toLocaleString()}</small></p>
+            ${d.workflow_url ? `<p><a href="${d.workflow_url}" target="_blank">View workflow run →</a></p>` : ''}
+        `;
+        document.getElementById('ciEnergy').innerHTML = html;
         } catch {
         document.getElementById('ciEnergy').textContent = 'No CI energy data yet.';
         }
